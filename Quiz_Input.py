@@ -25,7 +25,6 @@ class Question:
         return f'{self.question_dict}'
 
 def question_input():
-
     question_dict = {}
     while True:
         question = input('Enter a question, to stop entering questions enter \'stop\': ')
@@ -44,6 +43,7 @@ def question_input():
     return Question(question_dict)
 
 
-q1 = question_input()
+q1 = Question.question_input()
 print(q1)
+
 
