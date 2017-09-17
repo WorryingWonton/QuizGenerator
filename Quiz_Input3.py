@@ -6,7 +6,7 @@ class Quiz:
         self.name = name
         self.topic = topic
         self.difficulty = difficulty
-        self.quetions = questions
+        self.questions = questions
 
 def quiz_meta():
     name = input('What is the name of this quiz? ')
