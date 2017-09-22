@@ -53,7 +53,7 @@ questions = question_list_builder()
 quiz = Quiz(qmeta[0], qmeta[1], qmeta[2], questions)
 def JSONWrite(quiz, filepath):
     with open(f'{filepath}.json', 'w') as fp:
-        fp.write(json.dumps(quiz))
+        fp.write(quiz)
 JSONWrite(json.dumps(quiz, cls=ObjectEncoder), qmeta[0])
 
 
