@@ -1,12 +1,6 @@
 import json
+from models import *
 
-class Quiz:
-
-    def __init__(self, name, topic, difficulty, questions):
-        self.name = name
-        self.topic = topic
-        self.difficulty = difficulty
-        self.questions = questions
 
 def quiz_meta():
     name = input('What is the name of this quiz? ')
@@ -46,11 +40,7 @@ def question_list_builder():
         questions.append(q)
     return questions
 
-class Question:
 
-    def __init__(self, question_text, answer_dict):
-        self.question_text = question_text
-        self.answer_dict = answer_dict
 
 
 class ObjectEncoder(json.JSONEncoder):
