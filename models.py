@@ -1,4 +1,3 @@
-import json
 class Quiz:
 
     def __init__(self, name, topic, difficulty, questions):

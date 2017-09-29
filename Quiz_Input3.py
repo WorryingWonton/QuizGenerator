@@ -1,6 +1,5 @@
-
 from models import *
-
+import json
 
 def quiz_meta():
     name = input('What is the name of this quiz? ')
@@ -24,7 +23,8 @@ def question_generator():
             break
         while True:
             iscorrect = input('Is the above answer correct?  Enter True or False: ')
-            if iscorrect.lower() == 'true' or iscorrect.lower() == 'false':
+            iscorrect = iscorrect.lower()
+            if iscorrect == 'true' or iscorrect == 'false':
                 break
         answer_dict[answer] = iscorrect
     qapair = (question_text, answer_dict)
