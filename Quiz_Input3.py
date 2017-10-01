@@ -1,8 +1,7 @@
 from models import *
 from distutils.util import *
 import json
-from sys import *
-tracebacklimit = 0
+
 
 def quiz_meta():
     name = input('What is the name of this quiz? ')
