@@ -5,17 +5,19 @@ def quiz_object_builder(quiz_json):
     name = quiz_json['name']
     topic = quiz_json['topic']
     difficulty = quiz_json['difficulty']
+    total_points = quiz_json['total_points']
     questions = quiz_json['questions']
-    return Quiz(name, topic, difficulty, questions)
+    return Quiz(name, topic, difficulty, total_points, questions)
 
 def question_object_extractor(quiz_object, index):
     question_text = quiz_object.questions[index]['question_text']
     answer_dict = quiz_object.questions[index]['answer_dict']
-    return(Question(question_text, answer_dict))
+    points = quiz_object.questions[index]['points']
+    return(Question(question_text, answer_dict, points))
 
 def quiz_mode_selector():
     quiz_name = input('What is the file name for the quiz you would like to take: ')
-    if quiz_name.endswith('.json') != True:
+    if not quiz_name.endswith('.json') :
         quiz_name = quiz_name + '.json'
     else:
         quiz_name = quiz_name
@@ -31,15 +33,17 @@ def quiz_mode_selector():
         print('Please select a valid display option.')
     display_method = None
     if quiz_mode == 'clean' or quiz_mode == 'c':
-        display_method = render_to_page_clean(quiz)
+        is_clean = True
+        display_method = render_to_page(quiz, is_clean)
     if quiz_mode == 'rubric' or quiz_mode == 'r':
-        display_method = render_to_page_rubric(quiz)
+        is_clean = False
+        display_method = render_to_page(quiz, is_clean)
     if quiz_mode == 'electronic' or quiz_mode == 'e':
         display_method = quiz_score(electronic_quiz(quiz))
     return display_method
 
 
-def render_to_page_rubric(quiz_object):
+def render_to_page(quiz_object, is_clean):
     page = ''
     page += f'Quiz Name: {quiz_object.name}\n'
     page += f'Topic: {quiz_object.topic}\n'
@@ -51,22 +55,10 @@ def render_to_page_rubric(quiz_object):
         for answer_text, is_true in q_object.answer_dict.items():
             a_count += 1
             page += f'  Answer {a_count}: [ ] --- {answer_text}\n'
-            page += f'        Is Answer{a_count} correct?: {is_true}\n'
+            if not is_clean:
+                page += f'        Is Answer{a_count} correct?: {is_true}\n'
     return page
 
-def render_to_page_clean(quiz_object):
-    page = ''
-    page += f'Quiz Name: {quiz_object.name}\n'
-    page += f'Topic: {quiz_object.topic}\n'
-    page += f'Difficulty: {quiz_object.difficulty}'
-    for i in range(len(quiz_object.questions)):
-        q_object = question_object_extractor(quiz_object, i)
-        page += f'\nQuestion {i+1}: {q_object.question_text}\n'
-        a_count = 0
-        for answer_text in q_object.answer_dict.items():
-            a_count += 1
-            page += f'  Answer {a_count}: [ ] --- {answer_text[0]}\n'
-    return page
 
 def electronic_quiz(quiz_object):
     page = ''
@@ -103,19 +95,21 @@ def quiz_score(ans_tuple):
     actual_score = 0
     input_list = ans_tuple[0]
     iscorrect_list = ans_tuple[1]
-    for i in iscorrect_list:
-        for j in i:
-            possible_score += 1
     for i in range(len(input_list)):
         for j in range(len(input_list[i])):
+            possible_score += 1
             if input_list[i][j] == iscorrect_list[i][j]:
                 actual_score += 1
     score = (f'Actual: {actual_score}', f'Possible: {possible_score}', f'Score: {actual_score}/{possible_score} = {(actual_score/possible_score)*100}')
-
     return score
 
-a = quiz_mode_selector()
-print(a)
+quiz = quiz_mode_selector()
+print(quiz)
 
 
 
+#MKII Revisions for display:
+    #For quizzes with weighted and unweighted questions:
+        #Add two multiple-multiple choice question grading modes to quiz_score():
+            #The first mode is an all or nothing mode, the true false values in the is_correct list must exactly match the true-false values in the input_list for the question to be considered correct.
+            #The second mode (partially implemented already) checks the answers to each question individually and increases actual_score by 1/num_answers*(points or total_points if unweighted) for each match between the is_correct list and the input_list.
