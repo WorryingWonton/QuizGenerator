@@ -18,7 +18,7 @@ def quiz_meta():
             is_weighted = strtobool(is_weighted.lower())
             break
         except ValueError:
-            print('Enter  y, yes, t, true, on, 1, n, no, f, false, off, 0.')
+            print('Enter y, yes, t, true, on, 1, n, no, f, false, off, 0.')
     if is_weighted == 0:
         while True:
             total_points = input('Enter a number representing in total how many points this quiz is worth: ')

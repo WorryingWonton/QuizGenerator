@@ -1,4 +1,5 @@
 from models import *
+from distutils.util import *
 import json
 
 def quiz_object_builder(quiz_json):
@@ -31,6 +32,13 @@ def quiz_mode_selector():
         if quiz_mode in quiz_types:
             break
         print('Please select a valid display option.')
+    grade_type = None
+    if quiz_mode in ('electronic', 'e'):
+        while True:
+            grade_type = input('Do you want partial credit multiple-multiple choice, or all or nothing multiple-multiple choice?  Enter \'partial\' or \'all\': ')
+            grade_type = grade_type.lower()
+            if grade_type in ('all', 'a', 'partial', 'p'):
+                break
     display_method = None
     if quiz_mode == 'clean' or quiz_mode == 'c':
         is_clean = True
@@ -39,7 +47,7 @@ def quiz_mode_selector():
         is_clean = False
         display_method = render_to_page(quiz, is_clean)
     if quiz_mode == 'electronic' or quiz_mode == 'e':
-        display_method = quiz_score(electronic_quiz(quiz))
+        display_method = quiz_score(electronic_quiz(quiz), grade_type)
     return display_method
 
 
@@ -67,11 +75,17 @@ def electronic_quiz(quiz_object):
     page += f'Difficulty: {quiz_object.difficulty}'
     master_input_list = []
     master_iscorrect_list = []
-    tf_tuple = ('true', 'false')
+    score_dict = []
+    score_dict.append(quiz_object.total_points)
     print(page)
     for i in range(len(quiz_object.questions)):
         q_object = question_object_extractor(quiz_object, i)
-        print(f'\nQuestion {i+1}: {q_object.question_text}\n')
+        if q_object.points:
+            q_points = q_object.points
+        else:
+            q_points = quiz_object.total_points/len(quiz_object.questions)
+        score_dict.append(q_points)
+        print(f'\nQuestion {i+1}: {q_object.question_text} --- {q_points}pts\n')
         a_count = 0
         input_list = []
         is_correct_list = []
@@ -80,27 +94,33 @@ def electronic_quiz(quiz_object):
             print(f'  Answer {a_count}: {answer_text}')
             while True:
                 iscorrect = input('     Is this answer correct?  Enter True or False: ')
-                iscorrect = iscorrect.lower()
-                if iscorrect in tf_tuple:
+                try:
+                    iscorrect = strtobool(iscorrect.lower())
                     break
+                except ValueError:
+                    print('Enter y, yes, t, true, on, 1, n, no, f, false, off, 0.')
             input_list.append(iscorrect)
             is_correct_list.append(is_true)
         master_input_list.append(input_list)
         master_iscorrect_list.append(is_correct_list)
-    ans_tuple = (master_input_list, master_iscorrect_list)
+    ans_tuple = (master_input_list, master_iscorrect_list, score_dict)
     return ans_tuple
 
-def quiz_score(ans_tuple):
+def quiz_score(ans_tuple, grade_type):
     possible_score = 0
     actual_score = 0
     input_list = ans_tuple[0]
     iscorrect_list = ans_tuple[1]
+    total_points = ans_tuple[2][0]
+    eval_method = grade_type
     for i in range(len(input_list)):
         for j in range(len(input_list[i])):
             possible_score += 1
             if input_list[i][j] == iscorrect_list[i][j]:
                 actual_score += 1
     score = (f'Actual: {actual_score}', f'Possible: {possible_score}', f'Score: {actual_score}/{possible_score} = {(actual_score/possible_score)*100}')
+    print(input_list)
+    print(iscorrect_list)
     return score
 
 quiz = quiz_mode_selector()
@@ -113,3 +133,5 @@ print(quiz)
         #Add two multiple-multiple choice question grading modes to quiz_score():
             #The first mode is an all or nothing mode, the true false values in the is_correct list must exactly match the true-false values in the input_list for the question to be considered correct.
             #The second mode (partially implemented already) checks the answers to each question individually and increases actual_score by 1/num_answers*(points or total_points if unweighted) for each match between the is_correct list and the input_list.
+            #Add to quiz_mode_selector the ability to display the json files in the present working directory.
+                #For MKIII add custom metadata tag in quiz_input module for quiz json files.
