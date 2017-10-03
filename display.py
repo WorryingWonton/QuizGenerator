@@ -1,5 +1,5 @@
 from models import *
-from distutils.util import *
+from distutils.util import strtobool
 import json
 
 def quiz_object_builder(quiz_json):
