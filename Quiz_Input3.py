@@ -1,11 +1,16 @@
 from models import *
 from distutils.util import strtobool
+# from models import TAG
 import json
+
+#Pre-Commit 21
+TAG = 12345
 
 def quiz_meta():
     name = input('What is the name of this quiz? ')
     topic = input('What is this quiz about? ')
     d_scale = ('0','1','2','3')
+    tag = TAG
     total_points = None
     while True:
         difficulty = input(f'On a scale of {d_scale[0]} to {d_scale[-1]}, how hard is this quiz? ')
@@ -26,8 +31,7 @@ def quiz_meta():
                 break
             except ValueError:
                 print('Please enter a number.')
-
-    metalist = (name, topic, difficulty, total_points)
+    metalist = (tag, name, topic, difficulty, total_points)
     return metalist
 
 def question_generator(total_points):
@@ -80,18 +84,17 @@ class ObjectEncoder(json.JSONEncoder):
   def default(self, obj):
     return obj.__dict__
 
+if __name__ == '__main__':
+    qmeta = quiz_meta()
+    questions = question_list_builder(qmeta[4])
+    if qmeta[4] == None:
+        quiz_points = weighted_total_points_finder(questions)
+        quiz = Quiz(qmeta[0], qmeta[1], qmeta[2], qmeta[3], quiz_points, questions)
+    else:
+        quiz = Quiz(qmeta[0], qmeta[1], qmeta[2], qmeta[3], qmeta[4], questions)
+    def JSONWrite(quiz, filepath):
+        with open(f'{filepath}.json', 'w') as fp:
+            fp.write(quiz)
+    JSONWrite(json.dumps(quiz, cls=ObjectEncoder), qmeta[1])
 
-qmeta = quiz_meta()
-questions = question_list_builder(qmeta[3])
-if qmeta[3] == None:
-    quiz_points = weighted_total_points_finder(questions)
-    quiz = Quiz(qmeta[0], qmeta[1], qmeta[2], quiz_points, questions)
-else:
-    quiz = Quiz(qmeta[0], qmeta[1], qmeta[2], qmeta[3], questions)
-def JSONWrite(quiz, filepath):
-    with open(f'{filepath}.json', 'w') as fp:
-        fp.write(quiz)
-JSONWrite(json.dumps(quiz, cls=ObjectEncoder), qmeta[0])
-
-
-print(json.dumps(quiz, cls=ObjectEncoder))
+    print(json.dumps(quiz, cls=ObjectEncoder))

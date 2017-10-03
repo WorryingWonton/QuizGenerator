@@ -1,14 +1,24 @@
 from models import *
 from distutils.util import strtobool
+from pathlib import Path
+from Quiz_Input3 import TAG
 import json
 
+
 def quiz_object_builder(quiz_json):
+    if 'tag' in quiz_json:
+        tag = quiz_json['tag']
+    else:
+        tag = None
     name = quiz_json['name']
     topic = quiz_json['topic']
     difficulty = quiz_json['difficulty']
-    total_points = quiz_json['total_points']
+    if 'total_points' in quiz_json:
+        total_points = quiz_json['total_points']
+    else:
+        total_points = None
     questions = quiz_json['questions']
-    return Quiz(name, topic, difficulty, total_points, questions)
+    return Quiz(tag, name, topic, difficulty, total_points, questions)
 
 def question_object_extractor(quiz_object, index):
     question_text = quiz_object.questions[index]['question_text']
@@ -16,7 +26,24 @@ def question_object_extractor(quiz_object, index):
     points = quiz_object.questions[index]['points']
     return(Question(question_text, answer_dict, points))
 
+def quiz_lister(twd_path):
+    return [x for x in twd_path.iterdir() if x.name.endswith('.json')]
+
+
 def quiz_mode_selector():
+    #twd = Target Working Directory
+    twd_path = Path('.')
+    tag = TAG
+    commit21_list =[]
+    json_list = quiz_lister(twd_path)
+    print(json_list)
+    for i in json_list:
+        with open(i, 'r') as fp:
+            loader = json.load(fp)
+            embedded_tag = quiz_object_builder(loader)
+        if embedded_tag.tag == tag:
+            commit21_list.append(embedded_tag.name)
+    print(f'Commit #21 Json List: {commit21_list}')
     quiz_name = input('What is the file name for the quiz you would like to take: ')
     if not quiz_name.endswith('.json') :
         quiz_name = quiz_name + '.json'
@@ -73,7 +100,8 @@ def electronic_quiz(quiz_object):
     page = ''
     page += f'Quiz Name: {quiz_object.name}\n'
     page += f'Topic: {quiz_object.topic}\n'
-    page += f'Difficulty: {quiz_object.difficulty}'
+    page += f'Difficulty: {quiz_object.difficulty}\n'
+    page += f'Total Points: {quiz_object.total_points}'
     master_input_list = []
     master_iscorrect_list = []
     score_list = []
@@ -117,13 +145,13 @@ def quiz_score(ans_tuple, grade_type):
         q_score = 0
         for j in range(len(input_list[i])):
             if input_list[i][j] == iscorrect_list[i][j]:
+                q_score += q_points / len(input_list[i])
                 actual_score += q_points/len(input_list[i])
-                q_score += q_points/len(input_list[i])
         if grade_type in ('a', 'all') and input_list[i] != iscorrect_list[i]:
             actual_score -= q_score
-    score = (f'Actual: {actual_score}', f'Possible: {total_points}', f'Score: {actual_score}/{total_points} = {(actual_score/total_points)*100}')
-    print(input_list)
-    print(iscorrect_list)
+    score = (f'Actual: {actual_score}', f'Possible: {total_points}', f'Score: {actual_score}/{total_points} = {(actual_score/total_points)*100}%')
+    print(f'Input List: {input_list}')
+    print(f'Is_Correct List: {iscorrect_list}')
     return score
 
 quiz = quiz_mode_selector()
@@ -131,10 +159,4 @@ print(quiz)
 
 
 
-#MKII Revisions for display:
-    #For quizzes with weighted and unweighted questions:
-        #Add two multiple-multiple choice question grading modes to quiz_score():
-            #The first mode is an all or nothing mode, the true false values in the is_correct list must exactly match the true-false values in the input_list for the question to be considered correct.
-            #The second mode (partially implemented already) checks the answers to each question individually and increases actual_score by 1/num_answers*(points or total_points if unweighted) for each match between the is_correct list and the input_list.
-            #Add to quiz_mode_selector the ability to display the json files in the present working directory.
-                #For MKIII add custom metadata tag in quiz_input module for quiz json files.
+

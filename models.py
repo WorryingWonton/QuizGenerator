@@ -1,6 +1,7 @@
 class Quiz:
 
-    def __init__(self, name, topic, difficulty, total_points, questions):
+    def __init__(self, tag, name, topic, difficulty, total_points, questions):
+        self.tag = tag
         self.name = name
         self.topic = topic
         self.difficulty = difficulty
