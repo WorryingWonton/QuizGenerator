@@ -56,6 +56,7 @@ def render_to_page(quiz_object, is_clean):
     page += f'Quiz Name: {quiz_object.name}\n'
     page += f'Topic: {quiz_object.topic}\n'
     page += f'Difficulty: {quiz_object.difficulty}'
+    page += f'Total Points: {quiz_object.total_points}'
     for i in range(len(quiz_object.questions)):
         q_object = question_object_extractor(quiz_object, i)
         page += f'\nQuestion {i+1}: {q_object.question_text}\n'
@@ -75,8 +76,8 @@ def electronic_quiz(quiz_object):
     page += f'Difficulty: {quiz_object.difficulty}'
     master_input_list = []
     master_iscorrect_list = []
-    score_dict = []
-    score_dict.append(quiz_object.total_points)
+    score_list = []
+    score_list.append(quiz_object.total_points)
     print(page)
     for i in range(len(quiz_object.questions)):
         q_object = question_object_extractor(quiz_object, i)
@@ -84,7 +85,7 @@ def electronic_quiz(quiz_object):
             q_points = q_object.points
         else:
             q_points = quiz_object.total_points/len(quiz_object.questions)
-        score_dict.append(q_points)
+        score_list.append(q_points)
         print(f'\nQuestion {i+1}: {q_object.question_text} --- {q_points}pts\n')
         a_count = 0
         input_list = []
@@ -103,22 +104,24 @@ def electronic_quiz(quiz_object):
             is_correct_list.append(is_true)
         master_input_list.append(input_list)
         master_iscorrect_list.append(is_correct_list)
-    ans_tuple = (master_input_list, master_iscorrect_list, score_dict)
+    ans_tuple = (master_input_list, master_iscorrect_list, score_list)
     return ans_tuple
 
 def quiz_score(ans_tuple, grade_type):
-    possible_score = 0
     actual_score = 0
     input_list = ans_tuple[0]
     iscorrect_list = ans_tuple[1]
     total_points = ans_tuple[2][0]
-    eval_method = grade_type
     for i in range(len(input_list)):
+        q_points = ans_tuple[2][i + 1]
+        q_score = 0
         for j in range(len(input_list[i])):
-            possible_score += 1
             if input_list[i][j] == iscorrect_list[i][j]:
-                actual_score += 1
-    score = (f'Actual: {actual_score}', f'Possible: {possible_score}', f'Score: {actual_score}/{possible_score} = {(actual_score/possible_score)*100}')
+                actual_score += q_points/len(input_list[i])
+                q_score += actual_score
+        if grade_type in ('a', 'all') and input_list[i] != iscorrect_list[i]:
+            actual_score -= q_score
+    score = (f'Actual: {actual_score}', f'Possible: {total_points}', f'Score: {actual_score}/{total_points} = {(actual_score/total_points)*100}')
     print(input_list)
     print(iscorrect_list)
     return score
