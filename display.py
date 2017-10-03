@@ -55,7 +55,7 @@ def render_to_page(quiz_object, is_clean):
     page = ''
     page += f'Quiz Name: {quiz_object.name}\n'
     page += f'Topic: {quiz_object.topic}\n'
-    page += f'Difficulty: {quiz_object.difficulty}'
+    page += f'Difficulty: {quiz_object.difficulty}\n'
     page += f'Total Points: {quiz_object.total_points}'
     for i in range(len(quiz_object.questions)):
         q_object = question_object_extractor(quiz_object, i)
@@ -118,7 +118,7 @@ def quiz_score(ans_tuple, grade_type):
         for j in range(len(input_list[i])):
             if input_list[i][j] == iscorrect_list[i][j]:
                 actual_score += q_points/len(input_list[i])
-                q_score += actual_score
+                q_score += q_points/len(input_list[i])
         if grade_type in ('a', 'all') and input_list[i] != iscorrect_list[i]:
             actual_score -= q_score
     score = (f'Actual: {actual_score}', f'Possible: {total_points}', f'Score: {actual_score}/{total_points} = {(actual_score/total_points)*100}')
