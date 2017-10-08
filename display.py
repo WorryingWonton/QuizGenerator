@@ -2,6 +2,8 @@ from models import *
 from distutils.util import strtobool
 from pathlib import Path
 from Quiz_Input3 import TAG
+from renderers import *
+import os
 import json
 
 
@@ -49,12 +51,12 @@ def quiz_mode_selector():
         quiz_name = quiz_name + '.json'
     else:
         quiz_name = quiz_name
-    quiz_types = ('clean', 'c', 'rubric', 'r', 'electronic', 'e')
+    quiz_types = ('clean', 'c', 'rubric', 'r', 'electronic', 'e', 'html', 'h')
     with open(quiz_name, 'r') as fp:
         quiz_json = json.load(fp)
         quiz = quiz_object_builder(quiz_json)
     while True:
-        quiz_mode = input('What type of quiz would you like?  \nEnter \'Clean\' to display a printable quiz without the correct answers shown. \nEnter \'Rubric\' to display a printable quiz with the correct answers shown. \nEnter \'Electronic\' to display an interactive quiz which will be graded electronically. \nQuiz Mode: ' )
+        quiz_mode = input('What type of quiz would you like?  \nEnter \'Clean\' to display a printable quiz without the correct answers shown. \nEnter \'Rubric\' to display a printable quiz with the correct answers shown. \nEnter \'Electronic\' to display an interactive quiz which will be graded electronically. \nEnter \'HTML\' to view the quiz in your browser. \nQuiz Mode: ' )
         quiz_mode = quiz_mode.lower()
         if quiz_mode in quiz_types:
             break
@@ -73,8 +75,14 @@ def quiz_mode_selector():
     if quiz_mode == 'rubric' or quiz_mode == 'r':
         is_clean = False
         display_method = render_to_page(quiz, is_clean)
+    if quiz_mode in ('html', 'h'):
+        instance = HTMLQuizRender()
+        display_method = instance.render(quiz)
+        save_to_html(f'{quiz_name}.html', display_method)
+        os.startfile(f'{quiz_name}.html')
     if quiz_mode == 'electronic' or quiz_mode == 'e':
         display_method = quiz_score(electronic_quiz(quiz), grade_type)
+
     return display_method
 
 
@@ -95,6 +103,9 @@ def render_to_page(quiz_object, is_clean):
                 page += f'        Is Answer{a_count} correct?: {is_true}\n'
     return page
 
+def save_to_html(filename, html):
+    with open(filename, 'w') as fp:
+        fp.write(html)
 
 def electronic_quiz(quiz_object):
     page = ''
@@ -156,6 +167,7 @@ def quiz_score(ans_tuple, grade_type):
 
 quiz = quiz_mode_selector()
 print(quiz)
+
 
 
 

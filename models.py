@@ -16,6 +16,9 @@ class Question:
         self.points = points
 
 
+
+
+
 #MKII Modification outline for models:
     #Quiz class:  Add attribute for total score, genderated by sum of individual scores for question objects in quiz_input.
     #Question class:  Add attribute for individual question worth.  If all questions are equally weighted, set attribute to None in quiz_input.
