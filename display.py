@@ -69,10 +69,10 @@ def quiz_mode_selector():
             if grade_type in ('all', 'a', 'partial', 'p'):
                 break
     display_method = None
-    if quiz_mode == 'clean' or quiz_mode == 'c':
+    if quiz_mode in ('clean', 'c'):
         is_clean = True
         display_method = render_to_page(quiz, is_clean)
-    if quiz_mode == 'rubric' or quiz_mode == 'r':
+    if quiz_mode in ('rubric', 'r'):
         is_clean = False
         display_method = render_to_page(quiz, is_clean)
     if quiz_mode in ('html', 'h'):
@@ -80,7 +80,7 @@ def quiz_mode_selector():
         display_method = instance.render(quiz)
         save_to_html(f'{quiz_name}.html', display_method)
         os.startfile(f'{quiz_name}.html')
-    if quiz_mode == 'electronic' or quiz_mode == 'e':
+    if quiz_mode in ('electronic', 'e'):
         display_method = quiz_score(electronic_quiz(quiz), grade_type)
 
     return display_method
@@ -170,5 +170,8 @@ print(quiz)
 
 
 
+#Mark III Revisions:
+    #Add html display option for clean and rubric modes.  First implementation will just display a clean quiz.
+    #For quizzes with differentially weighted questions, modify the render_to_page and electronic_quiz methods to display how many points each question is worth.
 
 
