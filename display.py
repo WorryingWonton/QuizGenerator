@@ -19,13 +19,15 @@ def quiz_object_builder(quiz_json):
         total_points = quiz_json['total_points']
     else:
         total_points = None
-    questions = quiz_json['questions']
+    questions = []
+    for q in quiz_json['questions']:
+        questions.append(question_object_extractor(q))
     return Quiz(tag, name, topic, difficulty, total_points, questions)
 
-def question_object_extractor(quiz_object, index):
-    question_text = quiz_object.questions[index]['question_text']
-    answer_dict = quiz_object.questions[index]['answer_dict']
-    points = quiz_object.questions[index]['points']
+def question_object_extractor(question):
+    question_text = question['question_text']
+    answer_dict = question['answer_dict']
+    points = question['points']
     return(Question(question_text, answer_dict, points))
 
 def quiz_lister(twd_path):
@@ -92,15 +94,16 @@ def render_to_page(quiz_object, is_clean):
     page += f'Topic: {quiz_object.topic}\n'
     page += f'Difficulty: {quiz_object.difficulty}\n'
     page += f'Total Points: {quiz_object.total_points}'
-    for i in range(len(quiz_object.questions)):
-        q_object = question_object_extractor(quiz_object, i)
-        page += f'\nQuestion {i+1}: {q_object.question_text}\n'
+    for i in quiz_object.questions:
+        iter_count = 1
+        page += f'\nQuestion {iter_count}: {i.question_text}\n'
         a_count = 0
-        for answer_text, is_true in q_object.answer_dict.items():
+        for answer_text, is_true in i.answer_dict.items():
             a_count += 1
             page += f'  Answer {a_count}: [ ] --- {answer_text}\n'
             if not is_clean:
                 page += f'        Is Answer{a_count} correct?: {is_true}\n'
+        iter_count += 1
     return page
 
 def save_to_html(filename, html):
@@ -118,18 +121,18 @@ def electronic_quiz(quiz_object):
     score_list = []
     score_list.append(quiz_object.total_points)
     print(page)
-    for i in range(len(quiz_object.questions)):
-        q_object = question_object_extractor(quiz_object, i)
-        if q_object.points:
-            q_points = q_object.points
+    iter_count = 1
+    for q in quiz_object.questions:
+        if q.points:
+            q_points = q.points
         else:
-            q_points = quiz_object.total_points/len(quiz_object.questions)
+            q_points = q.total_points/len(quiz_object.questions)
         score_list.append(q_points)
-        print(f'\nQuestion {i+1}: {q_object.question_text} --- {q_points}pts\n')
+        print(f'\nQuestion {iter_count}: {q.question_text} --- {q_points}pts\n')
         a_count = 0
         input_list = []
         is_correct_list = []
-        for answer_text, is_true in q_object.answer_dict.items():
+        for answer_text, is_true in q.answer_dict.items():
             a_count += 1
             print(f'  Answer {a_count}: {answer_text}')
             while True:
