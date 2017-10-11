@@ -33,7 +33,6 @@ def question_object_extractor(question):
 def quiz_lister(twd_path):
     return [x for x in twd_path.iterdir() if x.name.endswith('.json')]
 
-
 def quiz_mode_selector():
     #twd = Target Working Directory
     twd_path = Path('.')
@@ -86,7 +85,8 @@ Quiz Mode: ''')
                 break
     display_method = None
     if quiz_mode in ('basic', 'b'):
-        display_method = render_to_page(quiz, is_clean)
+        instance = TextQuizRenderer()
+        display_method = instance.render(quiz, is_clean)
     if quiz_mode in ('html', 'h'):
         instance = HTMLQuizRender()
         display_method = instance.render(quiz, is_clean)
@@ -96,24 +96,6 @@ Quiz Mode: ''')
         display_method = quiz_score(electronic_quiz(quiz), grade_type)
     return display_method
 
-
-def render_to_page(quiz_object, is_clean):
-    page = ''
-    page += f'Quiz Name: {quiz_object.name}\n'
-    page += f'Topic: {quiz_object.topic}\n'
-    page += f'Difficulty: {quiz_object.difficulty}\n'
-    page += f'Total Points: {quiz_object.total_points}'
-    for i in quiz_object.questions:
-        iter_count = 1
-        page += f'\nQuestion {iter_count}: {i.question_text}\n'
-        a_count = 0
-        for answer_text, is_true in i.answer_dict.items():
-            a_count += 1
-            page += f'  Answer {a_count}: [ ] --- {answer_text}\n'
-            if is_clean:
-                page += f'        Is Answer{a_count} correct?: {is_true}\n'
-        iter_count += 1
-    return page
 
 def save_to_html(filename, html):
     with open(filename, 'w') as fp:
