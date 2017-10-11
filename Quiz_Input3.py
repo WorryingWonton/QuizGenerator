@@ -3,8 +3,8 @@ from distutils.util import strtobool
 # from models import TAG
 import json
 
-#Pre-Commit 21
-TAG = 12345
+#Pre-Commit 26
+TAG = 23456
 
 def quiz_meta():
     name = input('What is the name of this quiz? ')
@@ -46,7 +46,7 @@ def question_generator(total_points):
         while True:
             iscorrect = input('Is the above answer correct?  Enter True or False: ')
             try:
-                iscorrect = strtobool(iscorrect.lower())
+                iscorrect = bool(strtobool(iscorrect.lower()))
                 break
             except ValueError:
                 print('Enter  y, yes, t, true, on, 1, n, no, f, false, off, 0.')

@@ -38,7 +38,7 @@ def quiz_mode_selector():
     #twd = Target Working Directory
     twd_path = Path('.')
     tag = TAG
-    commit21_list =[]
+    commit_list =[]
     json_list = quiz_lister(twd_path)
     print(json_list)
     for i in json_list:
@@ -46,20 +46,34 @@ def quiz_mode_selector():
             loader = json.load(fp)
             embedded_tag = quiz_object_builder(loader)
         if embedded_tag.tag == tag:
-            commit21_list.append(embedded_tag.name)
-    print(f'Commit #21 Json List: {commit21_list}')
+            commit_list.append(embedded_tag.name)
+    print(f'Commit #26 Json List: {commit_list}')
     quiz_name = input('What is the file name for the quiz you would like to take: ')
     if not quiz_name.endswith('.json') :
         quiz_name = quiz_name + '.json'
     else:
         quiz_name = quiz_name
-    quiz_types = ('clean', 'c', 'rubric', 'r', 'electronic', 'e', 'html', 'h')
+    quiz_types = ('basic', 'b', 'electronic', 'e', 'html', 'h')
     with open(quiz_name, 'r') as fp:
         quiz_json = json.load(fp)
         quiz = quiz_object_builder(quiz_json)
     while True:
-        quiz_mode = input('What type of quiz would you like?  \nEnter \'Clean\' to display a printable quiz without the correct answers shown. \nEnter \'Rubric\' to display a printable quiz with the correct answers shown. \nEnter \'Electronic\' to display an interactive quiz which will be graded electronically. \nEnter \'HTML\' to view the quiz in your browser. \nQuiz Mode: ' )
+        quiz_mode = input(
+'''
+What type of quiz would you like?  
+Enter \'Basic'\ to display a basic, non-interactive quiz.
+Enter \'Electronic\' to display an interactive quiz which will be graded electronically. 
+Enter \'HTML\' to view the quiz in your browser. 
+Quiz Mode: ''')
         quiz_mode = quiz_mode.lower()
+        if quiz_mode in ('html', 'h', 'basic', 'b'):
+            while True:
+                is_clean = input('Do you want to display the rubric?  Enter \'yes\' or \'no\': ')
+                try:
+                    is_clean = bool(strtobool(is_clean.lower()))
+                    break
+                except ValueError:
+                    print('Enter y, yes, t, true, on, 1, n, no, f, false, off, 0.')
         if quiz_mode in quiz_types:
             break
         print('Please select a valid display option.')
@@ -71,20 +85,15 @@ def quiz_mode_selector():
             if grade_type in ('all', 'a', 'partial', 'p'):
                 break
     display_method = None
-    if quiz_mode in ('clean', 'c'):
-        is_clean = True
-        display_method = render_to_page(quiz, is_clean)
-    if quiz_mode in ('rubric', 'r'):
-        is_clean = False
+    if quiz_mode in ('basic', 'b'):
         display_method = render_to_page(quiz, is_clean)
     if quiz_mode in ('html', 'h'):
         instance = HTMLQuizRender()
-        display_method = instance.render(quiz)
+        display_method = instance.render(quiz, is_clean)
         save_to_html(f'{quiz_name}.html', display_method)
         os.startfile(f'{quiz_name}.html')
     if quiz_mode in ('electronic', 'e'):
         display_method = quiz_score(electronic_quiz(quiz), grade_type)
-
     return display_method
 
 
@@ -101,7 +110,7 @@ def render_to_page(quiz_object, is_clean):
         for answer_text, is_true in i.answer_dict.items():
             a_count += 1
             page += f'  Answer {a_count}: [ ] --- {answer_text}\n'
-            if not is_clean:
+            if is_clean:
                 page += f'        Is Answer{a_count} correct?: {is_true}\n'
         iter_count += 1
     return page
@@ -138,7 +147,7 @@ def electronic_quiz(quiz_object):
             while True:
                 iscorrect = input('     Is this answer correct?  Enter True or False: ')
                 try:
-                    iscorrect = strtobool(iscorrect.lower())
+                    iscorrect = bool(strtobool(iscorrect.lower()))
                     break
                 except ValueError:
                     print('Enter y, yes, t, true, on, 1, n, no, f, false, off, 0.')
@@ -174,7 +183,6 @@ print(quiz)
 
 
 #Mark III Revisions:
-    #Add html display option for clean and rubric modes.  First implementation will just display a clean quiz.
     #For quizzes with differentially weighted questions, modify the render_to_page and electronic_quiz methods to display how many points each question is worth.
 
 
