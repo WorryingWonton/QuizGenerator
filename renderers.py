@@ -13,7 +13,7 @@ class HTMLQuizRender:
         </html>
         '''
 
-    def render(self,quiz, is_clean_html):
+    def render(self,quiz, is_rubric_html):
         body = ''
         body += f'<h1>Quiz Name: {quiz.name}</h1><br/>'
         body += f'<h2>Topic: {quiz.topic}</h2><br/>'
@@ -26,9 +26,10 @@ class HTMLQuizRender:
             a_count = 0
             for answer_text, is_true in i.answer_dict.items():
                 a_count += 1
-                body += f'  Answer {a_count}: {answer_text} --- <input type="checkbox"><br/>'
-                if is_clean_html:
-                    body += f'      Rubric:  {is_true}<br/>'
+                if is_rubric_html and is_true:
+                    body += f'  Answer {a_count}: {answer_text} --- <input type="checkbox" checked="checked"><br/>'
+                else:
+                    body += f'  Answer {a_count}: {answer_text} --- <input type="checkbox"><br/>'
             iter_count += 1
         return self.basic_html(quiz.name, body)
 

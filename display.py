@@ -68,9 +68,9 @@ Quiz Mode: ''')
         quiz_mode = quiz_mode.lower()
         if quiz_mode in ('html', 'h', 'basic', 'b'):
             while True:
-                is_clean = input('Do you want to display the rubric?  Enter \'yes\' or \'no\': ')
+                is_rubric = input('Do you want to display the rubric?  Enter \'yes\' or \'no\': ')
                 try:
-                    is_clean = bool(strtobool(is_clean.lower()))
+                    is_rubric = bool(strtobool(is_rubric.lower()))
                     break
                 except ValueError:
                     print('Enter y, yes, t, true, on, 1, n, no, f, false, off, 0.')
@@ -86,10 +86,10 @@ Quiz Mode: ''')
                 break
     display_method = None
     if quiz_mode in ('basic', 'b'):
-        display_method = render_to_page(quiz, is_clean)
+        display_method = render_to_page(quiz, is_rubric)
     if quiz_mode in ('html', 'h'):
         instance = HTMLQuizRender()
-        display_method = instance.render(quiz, is_clean)
+        display_method = instance.render(quiz, is_rubric)
         save_to_html(f'{quiz_name}.html', display_method)
         os.startfile(f'{quiz_name}.html')
     if quiz_mode in ('electronic', 'e'):
@@ -97,7 +97,7 @@ Quiz Mode: ''')
     return display_method
 
 
-def render_to_page(quiz_object, is_clean):
+def render_to_page(quiz_object, is_rubric):
     page = ''
     page += f'Quiz Name: {quiz_object.name}\n'
     page += f'Topic: {quiz_object.topic}\n'
@@ -110,7 +110,7 @@ def render_to_page(quiz_object, is_clean):
         for answer_text, is_true in i.answer_dict.items():
             a_count += 1
             page += f'  Answer {a_count}: [ ] --- {answer_text}\n'
-            if is_clean:
+            if is_rubric:
                 page += f'        Is Answer{a_count} correct?: {is_true}\n'
         iter_count += 1
     return page
