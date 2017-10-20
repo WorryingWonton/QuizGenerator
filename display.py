@@ -1,3 +1,4 @@
+
 from models import *
 from distutils.util import strtobool
 from pathlib import Path
@@ -159,10 +160,11 @@ def quiz_score(ans_tuple, grade_type):
     print(f'Is_Correct List: {iscorrect_list}')
     return score
 
-quiz = quiz_mode_selector()
-print(quiz)
 
 
+if __name__ == '__main__':
+    quiz = quiz_mode_selector()
+    print(quiz)
 
 #Mark III Revisions:
     #For quizzes with differentially weighted questions, modify the render_to_page and electronic_quiz methods to display how many points each question is worth.
