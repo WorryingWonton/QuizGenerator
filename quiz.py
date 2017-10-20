@@ -5,13 +5,16 @@ from pathlib import Path
 from Quiz_Input3 import TAG
 
 parser = argparse.ArgumentParser(description= 'Command Line Quiz Display Utility')
-parser.add_argument('filename', nargs = '*', help='Enter the exact filenames for the quizzes you want to open, be sure they are compatible with the renderer methods..')
+parser.add_argument('filename', nargs = '*', help='Enter the exact filenames for the quizzes you want to open, be sure they are compatible with the renderer methods.')
 parser.add_argument('--type', help='Enter clean, c, rubric, or r.')
 parser.add_argument('--mode', help='Enter html, h, basic, or b.')
 args = parser.parse_args()
 args.mode = args.mode.lower()
+args.type = args.type.lower()
 if args.mode not in ('h', 'html', 'b', 'basic'):
-    print(f'{args.mode.upper()} is not valid, please enter h, html, basic, or b.')
+    print(f'{args.mode.upper()} is not a valid mode, please enter h, html, basic, or b.')
+elif args.type not in ('r', 'rubric', 'c', 'clean'):
+    print(f'{args.type.upper()} is not a valid type, please enter r, rubric, c, or clean.')
 else:
     # True = Display Rubric, False = Hide Rubric
     if args.type in ('rubric', 'r'):
